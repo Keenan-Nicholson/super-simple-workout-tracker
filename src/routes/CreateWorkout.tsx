@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "../App.css";
 
 interface Exercise {
@@ -8,7 +7,6 @@ interface Exercise {
 }
 
 export const CreateWorkout = () => {
-  const navigate = useNavigate();
   const [workoutName, setWorkoutName] = useState("");
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [exerciseInput, setExerciseInput] = useState("");
@@ -34,10 +32,7 @@ export const CreateWorkout = () => {
   };
 
   return (
-    <div className="create-workout-screen">
-      <button className="home-icon-button" onClick={() => navigate("/")}>
-        <img src="/dumbbell.png" alt="Back to Home" />
-      </button>
+    <div className="home-screen">
       <h1 className="title">Create Workout</h1>
 
       <input

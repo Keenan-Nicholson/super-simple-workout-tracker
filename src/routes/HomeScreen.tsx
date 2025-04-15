@@ -6,9 +6,6 @@ export const HomeScreen = () => {
 
   return (
     <div className="home-screen">
-      <button className="home-icon-button" onClick={() => navigate("/")}>
-        <img src="/dumbbell.png" alt="Back to Home" />
-      </button>
       <h1 className="title">Super Simple Workout Tracker</h1>
       <div className="button-container">
         <button
