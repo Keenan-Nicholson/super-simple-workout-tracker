@@ -95,6 +95,16 @@
   background-color: #10b981; /* green */
 }
 
+.add-set-button {
+  color: #10b981;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  outline: none;
+  font-size: 1rem;
+}
 .create-workout-screen {
   display: flex;
   flex-direction: column;
