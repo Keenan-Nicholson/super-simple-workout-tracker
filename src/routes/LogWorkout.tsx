@@ -32,14 +32,6 @@ const fakeData = [
   { id: 5, name: "Full Body Blast" },
 ];
 
-const fakeExerciseData = [
-    { id: 1, name: "Push Ups" },
-    { id: 2, name: "Squats" },
-    { id: 3, name: "Deadlifts" },
-    { id: 4, name: "Bench Press" },
-    { id: 5, name: "Pull Ups" },
-    ];
-
 export const LogWorkout = () => {
   const navigate = useNavigate();
   const [workouts, setWorkouts] = useState<WorkoutPlan[]>([]);

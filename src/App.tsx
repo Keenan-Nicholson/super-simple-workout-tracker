@@ -3,6 +3,7 @@ import { CreateWorkout } from "./routes/CreateWorkout";
 import { HomeScreen } from "./routes/HomeScreen";
 import { LogWorkout } from "./routes/LogWorkout";
 import { HomeButton } from "./Components/HomeButton";
+import { Workout } from "./Components/Workout";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/" element={<HomeScreen />} />
         <Route path="/CreateWorkout/" element={<CreateWorkout />} />
         <Route path="/LogWorkout/" element={<LogWorkout />} />
+        <Route path="/LogWorkout/:id" element={<Workout />} />
       </Routes>
     </div>
   );
