@@ -1,10 +1,9 @@
-import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
-// Define the types for the form data
 interface Set {
   reps: string;
   weight: string;
@@ -14,156 +13,151 @@ interface Set {
 interface Exercise {
   id: number;
   name: string;
-  sets: Set[];
 }
 
 interface WorkoutForm {
   selectedDate: Date;
-  exercises: Exercise[];
+  exercises: Record<number, Set[]>;
 }
 
-// Sample data for testing
 const fakeData = [
-  { id: 1, name: "Arm Day", exercises: [{ id: 1, name: "Bicep Curl" }] },
-  { id: 2, name: "Leg Day", exercises: [{ id: 2, name: "Squat" }] },
-  { id: 3, name: "Push Day", exercises: [{ id: 3, name: "Bench Press" }] },
+  {
+    id: 1,
+    name: "Arm Day",
+    exercises: [
+      { id: 101, name: "Bench Press" },
+      { id: 102, name: "Barbell Curl" },
+      { id: 103, name: "Dumbbell Curl" },
+      { id: 104, name: "Hammer Curl" },
+    ],
+  },
 ];
 
 export const Workout = () => {
   const { id } = useParams();
-  // Change workout state type to hold the full structure
-  const [workout, setWorkout] = useState<{
-    id: number;
-    name: string;
-    exercises: Exercise[];
-  } | null>(null);
+  const [workout, setWorkout] = useState<any>(null);
 
-  const { control, register, handleSubmit, setValue } = useForm<WorkoutForm>({
-    defaultValues: {
-      selectedDate: new Date(),
-      exercises: [], // Empty array initially
-    },
-  });
-
-  const { fields: exerciseFields, append: _appendExercise } = useFieldArray({
-    control,
-    name: "exercises", // Path to exercises array
-  });
+  const { control, handleSubmit, register, setValue, getValues } =
+    useForm<WorkoutForm>({
+      defaultValues: {
+        selectedDate: new Date(),
+        exercises: {},
+      },
+    });
 
   useEffect(() => {
     const selectedWorkout = fakeData.find((w) => w.id === parseInt(id!));
-
     if (selectedWorkout) {
-      const exerciseData = selectedWorkout.exercises.map((exercise: any) => ({
-        id: exercise.id,
-        name: exercise.name,
-        sets: [{ reps: "", weight: "", rest: "" }],
-      }));
-
-      // Set the workout with the right structure
-      setWorkout({
-        id: selectedWorkout.id,
-        name: selectedWorkout.name,
-        exercises: exerciseData,
+      const initialExercisesState: any = {};
+      selectedWorkout.exercises.forEach((exercise: Exercise) => {
+        initialExercisesState[exercise.id] = [
+          { reps: "", weight: "", rest: "" }, // one set by default
+        ];
       });
 
-      setValue("exercises", exerciseData); // Set the exercises for the workout
-    } else {
-      setWorkout(null); // Handle the case where no workout is found
+      setWorkout(selectedWorkout);
+      setValue("exercises", initialExercisesState as Record<number, Set[]>); // Typecast to Record<number, Set[]>
     }
-  }, [id, setValue]); // Properly place the dependencies
+  }, [id, setValue]);
 
-  const { fields: _setFields, append } = useFieldArray({
-    control,
-    name: `exercises.${0}.sets`, // Path to sets array of the first exercise
-  });
-
-  const addSetToExercise = (_exerciseIndex: number) => {
-    append({ reps: "", weight: "", rest: "" }); // Add a new set to the exercise
-  };
   const onSubmit = (data: WorkoutForm) => {
-    console.log("Workout data:", data);
+    const result = workout.exercises.flatMap((exercise: Exercise) => {
+      return (
+        data.exercises[exercise.id]?.map((set: Set) => ({
+          "workout-id": id,
+          name: exercise.name,
+          reps: parseInt(set.reps),
+          weight: parseInt(set.weight),
+          rest: parseInt(set.rest),
+        })) || []
+      );
+    });
+
+    console.log(result);
   };
 
-  if (!workout) {
-    return <div>Loading...</div>;
-  }
+  const addSet = (exerciseId: number) => {
+    const prev = getValues(`exercises.${exerciseId}`) || [];
+    setValue(`exercises.${exerciseId}`, [
+      ...prev,
+      { reps: "", weight: "", rest: "" },
+    ] as Set[]); // Typecast to Set[]
+  };
+
+  const removeSet = (exerciseId: number, index: number) => {
+    const prev = getValues(`exercises.${exerciseId}`) || [];
+    prev.splice(index, 1);
+    setValue(`exercises.${exerciseId}`, [...prev] as Set[]); // Typecast to Set[]
+  };
+
+  if (!workout) return <div>Loading...</div>;
 
   return (
-    <form className="workout-screen" onSubmit={handleSubmit(onSubmit)}>
-      <h1>{workout.name}</h1>
-      <div className="date-picker-container">
-        <label htmlFor="workout-date">Date</label>
-        <Controller
-          name="selectedDate"
-          control={control}
-          render={({ field }) => (
-            <DatePicker
-              selected={field.value}
-              onChange={field.onChange}
-              className="date-picker"
-            />
-          )}
-        />
-      </div>
-
-      <div className="exercise-list">
-        {exerciseFields.map((exercise, index) => (
-          <div key={exercise.id} className="exercise-block">
-            <button type="button" className="exercise-button log-button">
-              {exercise.name}
-            </button>
-
-            <div className="set-table">
-              <Controller
-                control={control}
-                name={`exercises.${index}.sets`}
-                render={({ field }) => (
-                  <>
-                    {field.value?.map((_, setIndex: number) => (
-                      <div key={setIndex} className="set-row">
-                        <input
-                          type="number"
-                          placeholder="Reps"
-                          {...register(
-                            `exercises.${index}.sets.${setIndex}.reps`
-                          )}
-                        />
-                        <input
-                          type="number"
-                          placeholder="Weight"
-                          {...register(
-                            `exercises.${index}.sets.${setIndex}.weight`
-                          )}
-                        />
-                        <input
-                          type="number"
-                          placeholder="Rest (sec)"
-                          {...register(
-                            `exercises.${index}.sets.${setIndex}.rest`
-                          )}
-                        />
-                      </div>
-                    ))}
-                  </>
-                )}
+    <div className="workout-screen">
+      <form className="exercise-list" onSubmit={handleSubmit(onSubmit)}>
+        <div className="date-picker-container">
+          <Controller
+            name="selectedDate"
+            control={control}
+            render={({ field }) => (
+              <DatePicker
+                selected={field.value}
+                onChange={(date) => field.onChange(date)}
+                dateFormat="yyyy/MM/dd"
+                className="date-picker"
               />
-            </div>
+            )}
+          />
+        </div>
 
-            <button
-              type="button"
-              onClick={() => addSetToExercise(index)}
-              className="add-set-button"
-            >
+        {workout.exercises.map((exercise: Exercise) => (
+          <div key={exercise.id} className="exercise-block">
+            <h3 className="exercise-button log-button">{exercise.name}</h3>
+            <div className="set-table">
+              {getValues(`exercises.${exercise.id}`)?.map(
+                (_, setIndex: number) => (
+                  <div key={setIndex} className="set-row">
+                    <input
+                      type="number"
+                      placeholder="Reps"
+                      {...register(
+                        `exercises.${exercise.id}.${setIndex}.reps` as any
+                      )}
+                    />
+                    <input
+                      type="number"
+                      placeholder="Weight"
+                      {...register(
+                        `exercises.${exercise.id}.${setIndex}.weight` as any
+                      )}
+                    />
+                    <input
+                      type="number"
+                      placeholder="Rest (sec)"
+                      {...register(
+                        `exercises.${exercise.id}.${setIndex}.rest` as any
+                      )}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeSet(exercise.id, setIndex)}
+                    >
+                      Remove Set
+                    </button>
+                  </div>
+                )
+              )}
+            </div>
+            <button type="button" onClick={() => addSet(exercise.id)}>
               + Add Set
             </button>
           </div>
         ))}
-      </div>
 
-      <button type="submit" className="exercise-button log-button">
-        Save Workout
-      </button>
-    </form>
+        <button type="submit" className="home-button create-button">
+          Save Workout
+        </button>
+      </form>
+    </div>
   );
 };
