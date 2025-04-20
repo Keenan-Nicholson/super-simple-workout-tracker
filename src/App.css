@@ -95,6 +95,36 @@
   background-color: #10b981; /* green */
 }
 
+.add-set-button {
+  color: #10b981;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  outline: none;
+  font-size: 1rem;
+}
+
+.remove-set-button {
+  color: #f44336;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  outline: none;
+  font-size: 1rem;
+}
+
+.add-set-button,
+.remove-set-button {
+  padding-right: 1rem;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
 .create-workout-screen {
   display: flex;
   flex-direction: column;
@@ -204,6 +234,7 @@
 }
 
 .set-row {
+  margin-bottom: 2rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;

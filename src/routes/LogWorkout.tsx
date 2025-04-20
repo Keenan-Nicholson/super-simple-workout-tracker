@@ -2,23 +2,6 @@ import { useNavigate } from "react-router-dom";
 import "../App.css";
 import { useEffect, useState } from "react";
 
-// // A) Fetch all workout plans
-// const workoutPlans = async () => {
-//   try {
-//     const response = await fetch("api/workout-plans/", {
-//       method: "GET",
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//     });
-
-//     const result = await response.json();
-//     return result;
-//   } catch (error) {
-//     console.error("Error fetching workout plans:", error);
-//   }
-// };
-
 type WorkoutPlan = {
   id: number;
   name: string;

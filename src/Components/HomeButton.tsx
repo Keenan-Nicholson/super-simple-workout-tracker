@@ -10,12 +10,12 @@ export const HomeButton = () => {
 
     // If already at root, don't navigate
     if (parts.length === 0) {
-      return; // Do nothing
+      return;
     }
 
     // Otherwise go back one level
     const newPath = "/" + parts.slice(0, -1).join("/");
-    navigate(newPath || "/"); // fallback just in case
+    navigate(newPath || "/");
   };
 
   return (
