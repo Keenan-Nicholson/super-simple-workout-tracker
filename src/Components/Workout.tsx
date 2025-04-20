@@ -51,12 +51,12 @@ export const Workout = () => {
       const initialExercisesState: any = {};
       selectedWorkout.exercises.forEach((exercise: Exercise) => {
         initialExercisesState[exercise.id] = [
-          { reps: "", weight: "", rest: "" }, // one set by default
+          { reps: "", weight: "", rest: "" },
         ];
       });
 
       setWorkout(selectedWorkout);
-      setValue("exercises", initialExercisesState as Record<number, Set[]>); // Typecast to Record<number, Set[]>
+      setValue("exercises", initialExercisesState as Record<number, Set[]>);
     }
   }, [id, setValue]);
 
@@ -65,6 +65,7 @@ export const Workout = () => {
       return (
         data.exercises[exercise.id]?.map((set: Set) => ({
           "workout-id": id,
+          date: data.selectedDate,
           name: exercise.name,
           reps: parseInt(set.reps),
           weight: parseInt(set.weight),
@@ -114,7 +115,7 @@ export const Workout = () => {
           <div key={exercise.id} className="exercise-block">
             <h3 className="exercise-button log-button">{exercise.name}</h3>
             <div className="set-table">
-              {getValues(`exercises.${exercise.id}`)?.map(
+              {getValues(`exercises.${exercise.id}` as any)?.map(
                 (_, setIndex: number) => (
                   <div key={setIndex} className="set-row">
                     <input
@@ -138,19 +139,26 @@ export const Workout = () => {
                         `exercises.${exercise.id}.${setIndex}.rest` as any
                       )}
                     />
-                    <button
-                      type="button"
-                      onClick={() => removeSet(exercise.id, setIndex)}
-                    >
-                      Remove Set
-                    </button>
+                    <div className="set-buttons-row">
+                      <button
+                        className="add-set-button"
+                        type="button"
+                        onClick={() => addSet(exercise.id)}
+                      >
+                        + Set
+                      </button>
+                      <button
+                        className="remove-set-button"
+                        type="button"
+                        onClick={() => removeSet(exercise.id, setIndex)}
+                      >
+                        - Set
+                      </button>
+                    </div>
                   </div>
                 )
               )}
             </div>
-            <button type="button" onClick={() => addSet(exercise.id)}>
-              + Add Set
-            </button>
           </div>
         ))}
 

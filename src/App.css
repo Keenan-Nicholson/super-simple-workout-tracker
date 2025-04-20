@@ -105,6 +105,26 @@
   outline: none;
   font-size: 1rem;
 }
+
+.remove-set-button {
+  color: #f44336;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  outline: none;
+  font-size: 1rem;
+}
+
+.add-set-button,
+.remove-set-button {
+  padding-right: 1rem;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
 .create-workout-screen {
   display: flex;
   flex-direction: column;
