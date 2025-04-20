@@ -2,6 +2,7 @@ import { useForm, Controller } from "react-hook-form";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import DatePicker from "react-datepicker";
+import { ExerciseFieldArray } from "./ExerciseFieldArray";
 import "react-datepicker/dist/react-datepicker.css";
 
 interface Set {
@@ -17,7 +18,11 @@ interface Exercise {
 
 interface WorkoutForm {
   selectedDate: Date;
-  exercises: Record<number, Set[]>;
+  exercises: {
+    id: number;
+    name: string;
+    sets: Set[];
+  }[];
 }
 
 const fakeData = [
@@ -37,58 +42,40 @@ export const Workout = () => {
   const { id } = useParams();
   const [workout, setWorkout] = useState<any>(null);
 
-  const { control, handleSubmit, register, setValue, getValues } =
-    useForm<WorkoutForm>({
-      defaultValues: {
-        selectedDate: new Date(),
-        exercises: {},
-      },
-    });
+  const { control, handleSubmit, register, setValue } = useForm<WorkoutForm>({
+    defaultValues: {
+      selectedDate: new Date(),
+      exercises: [],
+    },
+  });
 
   useEffect(() => {
     const selectedWorkout = fakeData.find((w) => w.id === parseInt(id!));
     if (selectedWorkout) {
-      const initialExercisesState: any = {};
-      selectedWorkout.exercises.forEach((exercise: Exercise) => {
-        initialExercisesState[exercise.id] = [
-          { reps: "", weight: "", rest: "" },
-        ];
-      });
+      const defaultExercises = selectedWorkout.exercises.map((exercise) => ({
+        id: exercise.id,
+        name: exercise.name,
+        sets: [{ reps: "", weight: "", rest: "" }],
+      }));
 
       setWorkout(selectedWorkout);
-      setValue("exercises", initialExercisesState as Record<number, Set[]>);
+      setValue("exercises", defaultExercises);
     }
   }, [id, setValue]);
 
   const onSubmit = (data: WorkoutForm) => {
-    const result = workout.exercises.flatMap((exercise: Exercise) => {
-      return (
-        data.exercises[exercise.id]?.map((set: Set) => ({
-          "workout-id": id,
-          date: data.selectedDate,
-          name: exercise.name,
-          reps: parseInt(set.reps),
-          weight: parseInt(set.weight),
-          rest: parseInt(set.rest),
-        })) || []
-      );
-    });
+    const result = data.exercises.flatMap((exercise) =>
+      exercise.sets.map((set) => ({
+        "workout-id": id,
+        date: data.selectedDate,
+        name: exercise.name,
+        reps: parseInt(set.reps),
+        weight: parseInt(set.weight),
+        rest: parseInt(set.rest),
+      }))
+    );
 
     console.log(result);
-  };
-
-  const addSet = (exerciseId: number) => {
-    const prev = getValues(`exercises.${exerciseId}`) || [];
-    setValue(`exercises.${exerciseId}`, [
-      ...prev,
-      { reps: "", weight: "", rest: "" },
-    ] as Set[]); // Typecast to Set[]
-  };
-
-  const removeSet = (exerciseId: number, index: number) => {
-    const prev = getValues(`exercises.${exerciseId}`) || [];
-    prev.splice(index, 1);
-    setValue(`exercises.${exerciseId}`, [...prev] as Set[]); // Typecast to Set[]
   };
 
   if (!workout) return <div>Loading...</div>;
@@ -111,55 +98,14 @@ export const Workout = () => {
           />
         </div>
 
-        {workout.exercises.map((exercise: Exercise) => (
-          <div key={exercise.id} className="exercise-block">
-            <h3 className="exercise-button log-button">{exercise.name}</h3>
-            <div className="set-table">
-              {getValues(`exercises.${exercise.id}` as any)?.map(
-                (_, setIndex: number) => (
-                  <div key={setIndex} className="set-row">
-                    <input
-                      type="number"
-                      placeholder="Reps"
-                      {...register(
-                        `exercises.${exercise.id}.${setIndex}.reps` as any
-                      )}
-                    />
-                    <input
-                      type="number"
-                      placeholder="Weight"
-                      {...register(
-                        `exercises.${exercise.id}.${setIndex}.weight` as any
-                      )}
-                    />
-                    <input
-                      type="number"
-                      placeholder="Rest (sec)"
-                      {...register(
-                        `exercises.${exercise.id}.${setIndex}.rest` as any
-                      )}
-                    />
-                    <div className="set-buttons-row">
-                      <button
-                        className="add-set-button"
-                        type="button"
-                        onClick={() => addSet(exercise.id)}
-                      >
-                        + Set
-                      </button>
-                      <button
-                        className="remove-set-button"
-                        type="button"
-                        onClick={() => removeSet(exercise.id, setIndex)}
-                      >
-                        - Set
-                      </button>
-                    </div>
-                  </div>
-                )
-              )}
-            </div>
-          </div>
+        {workout.exercises.map((exercise: Exercise, index: number) => (
+          <ExerciseFieldArray
+            key={exercise.id}
+            exerciseIndex={index}
+            exerciseName={exercise.name}
+            control={control}
+            register={register}
+          />
         ))}
 
         <button type="submit" className="home-button create-button">
