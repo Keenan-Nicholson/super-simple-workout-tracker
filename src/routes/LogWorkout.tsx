@@ -7,20 +7,26 @@ type WorkoutPlan = {
   name: string;
 };
 
-const fakeData = [
-  { id: 1, name: "Arm Day" },
-  { id: 2, name: "Leg Day" },
-  { id: 3, name: "Push Day" },
-  { id: 4, name: "Pull Day" },
-  { id: 5, name: "Full Body Blast" },
-];
-
 export const LogWorkout = () => {
   const navigate = useNavigate();
   const [workouts, setWorkouts] = useState<WorkoutPlan[]>([]);
 
   useEffect(() => {
-    setWorkouts(fakeData);
+    const fetchWorkouts = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/workouts");
+        if (!response.ok) {
+          throw new Error("Failed to fetch workouts");
+        }
+        const data = await response.json();
+        setWorkouts(data);
+        console.log("Fetched workouts:", data);
+      } catch (error) {
+        console.error("Error fetching workouts:", error);
+      }
+    };
+
+    fetchWorkouts();
   }, []);
 
   return (

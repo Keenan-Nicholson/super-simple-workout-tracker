@@ -21,14 +21,27 @@ export const CreateWorkout = () => {
     setExercises(exercises.filter((e) => e.id !== id));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const data = {
       workoutName,
       exercises: exercises.map((e) => e.name),
     };
 
-    console.log("Saving workout:", data);
-    // TODO: send to backend
+    console.log(data);
+
+    const response = await fetch("http://localhost:3000/workouts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      console.error("Failed to save workout");
+      return;
+    }
+    const result = await response.json();
+    console.log("Workout saved:", result);
   };
 
   return (

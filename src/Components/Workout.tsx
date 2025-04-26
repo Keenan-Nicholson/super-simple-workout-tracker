@@ -11,32 +11,29 @@ interface Set {
   rest: string;
 }
 
-interface Exercise {
+interface RawWorkout {
   id: number;
+  name: string;
+  exercises: string; // still stringified
+}
+
+interface Workout {
+  id: number;
+  name: string;
+  exercises: Exercise[];
+}
+
+interface Exercise {
   name: string;
 }
 
 interface WorkoutForm {
   selectedDate: Date;
   exercises: {
-    id: number;
-    name: string;
+    name: String;
     sets: Set[];
   }[];
 }
-
-const fakeData = [
-  {
-    id: 1,
-    name: "Arm Day",
-    exercises: [
-      { id: 101, name: "Bench Press" },
-      { id: 102, name: "Barbell Curl" },
-      { id: 103, name: "Dumbbell Curl" },
-      { id: 104, name: "Hammer Curl" },
-    ],
-  },
-];
 
 export const Workout = () => {
   const { id } = useParams();
@@ -50,17 +47,46 @@ export const Workout = () => {
   });
 
   useEffect(() => {
-    const selectedWorkout = fakeData.find((w) => w.id === parseInt(id!));
-    if (selectedWorkout) {
-      const defaultExercises = selectedWorkout.exercises.map((exercise) => ({
-        id: exercise.id,
-        name: exercise.name,
-        sets: [{ reps: "", weight: "", rest: "" }],
-      }));
+    const fetchWorkouts = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/workouts");
+        if (!response.ok) {
+          throw new Error("Failed to fetch workouts");
+        }
+        const data: RawWorkout[] = await response.json();
 
-      setWorkout(selectedWorkout);
-      setValue("exercises", defaultExercises);
-    }
+        // Find the correct workout AFTER fetching
+        const selectedWorkout = data.find(
+          (w: RawWorkout) => w.id === parseInt(id!)
+        );
+
+        if (selectedWorkout) {
+          const exercisesArray: Exercise[] = JSON.parse(
+            selectedWorkout.exercises
+          );
+
+          const workout: Workout = {
+            id: selectedWorkout.id,
+            name: selectedWorkout.name,
+            exercises: exercisesArray,
+          };
+
+          setWorkout(workout);
+
+          const defaultExercises = exercisesArray.map((exercise) => ({
+            name: exercise.name,
+            sets: [{ reps: "", weight: "", rest: "" }],
+          }));
+          console.log("Default exercises:", defaultExercises);
+
+          setValue("exercises", defaultExercises);
+        }
+      } catch (error) {
+        console.error("Error fetching workouts:", error);
+      }
+    };
+
+    fetchWorkouts();
   }, [id, setValue]);
 
   const onSubmit = (data: WorkoutForm) => {
@@ -99,11 +125,11 @@ export const Workout = () => {
           />
         </div>
 
-        {workout.exercises.map((exercise: Exercise, index: number) => (
+        {workout.exercises.map((exercise: string, index: number) => (
           <ExerciseFieldArray
-            key={exercise.id}
             exerciseIndex={index}
-            exerciseName={exercise.name}
+            key={index}
+            exerciseName={exercise}
             control={control}
             register={register}
           />
