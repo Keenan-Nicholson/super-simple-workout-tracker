@@ -82,6 +82,7 @@ export const Workout = () => {
 
   return (
     <div className="workout-screen">
+      <h1 className="title">{workout.name}</h1>
       <form className="exercise-list" onSubmit={handleSubmit(onSubmit)}>
         <div className="date-picker-container">
           <Controller

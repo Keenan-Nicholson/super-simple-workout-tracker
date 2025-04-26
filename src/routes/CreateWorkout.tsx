@@ -51,7 +51,7 @@ export const CreateWorkout = () => {
           onChange={(e) => setExerciseInput(e.target.value)}
           className="input-field"
         />
-        <button className="add-set-btn" onClick={handleAddExercise}>
+        <button className="add-btn" onClick={handleAddExercise}>
           Add
         </button>
       </div>
