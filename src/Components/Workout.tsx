@@ -100,8 +100,29 @@ export const Workout = () => {
         rest: parseInt(set.rest),
       }))
     );
+    console.log("Submitted data:", result);
 
-    console.log(result);
+    const postWorkout = async () => {
+      try {
+        const response = await fetch("http://localhost:3000/logged_sets", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(result),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to save workout");
+        }
+
+        console.log("Workout saved successfully");
+      } catch (error) {
+        console.error("Error saving workout:", error);
+      }
+    };
+    postWorkout();
+    console.log("Submitted data:", result);
   };
 
   if (!workout) return <div>Loading...</div>;

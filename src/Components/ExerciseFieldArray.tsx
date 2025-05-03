@@ -21,6 +21,12 @@ export const ExerciseFieldArray = ({
   return (
     <div className="exercise-block">
       <h3 className="exercise-button log-button">{exerciseName}</h3>
+      <input
+        type="hidden"
+        {...register(`exercises.${exerciseIndex}.name`)}
+        value={exerciseName}
+      />
+
       <div className="set-table">
         {fields.map((field, setIndex) => (
           <div key={field.id} className="set-row">
