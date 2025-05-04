@@ -103,6 +103,7 @@ app.post("/logged_sets", (req, res) => {
   for (const entry of workoutEntries) {
     const { ["workout-id"]: workoutId, date, name, reps, weight, rest } = entry;
 
+    console.log(name);
     if (
       !workoutId ||
       !date ||
@@ -111,12 +112,13 @@ app.post("/logged_sets", (req, res) => {
       weight == null ||
       rest == null
     ) {
-      continue;
+      console.error("Invalid entry:", entry);
+      return res.status(400).json({ error: "Invalid entry" });
     }
 
     stmt.run(workoutId, date, name, reps, weight, rest);
   }
-
+  console.log("Workout sets logged successfully");
   stmt.finalize((err) => {
     if (err) return res.status(500).json({ error: err.message });
     res.status(201).json({ message: "Workout sets logged successfully" });

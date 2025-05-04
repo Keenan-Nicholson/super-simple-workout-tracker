@@ -111,11 +111,10 @@ export const Workout = () => {
           },
           body: JSON.stringify(result),
         });
-
+      
         if (!response.ok) {
           throw new Error("Failed to save workout");
         }
-
       } catch (error) {
         console.error("Error saving workout:", error);
       }
@@ -141,7 +140,6 @@ export const Workout = () => {
       if (!response.ok) {
         throw new Error("Failed to delete workout");
       }
-
     } catch (error) {
       console.error("Error deleting workout:", error);
     }

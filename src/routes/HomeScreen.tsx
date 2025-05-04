@@ -20,6 +20,12 @@ export const HomeScreen = () => {
         >
           Log Workout
         </button>
+        <button
+          className="home-button log-button"
+          onClick={() => navigate("/WorkoutHistory/")}
+        >
+          History
+        </button>
       </div>
     </div>
   );
