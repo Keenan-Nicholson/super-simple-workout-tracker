@@ -61,9 +61,6 @@ db.run(
 
 app.post("/workouts", (req, res) => {
   const { workoutName, exercises } = req.body;
-  console.log("Received request to create workout:", req.body);
-  console.log("Name:", workoutName);
-  console.log("Exercises:", exercises);
 
   if (!workoutName || !exercises) {
     return res.status(400).json({ error: "Name and exercises are required" });
@@ -133,4 +130,31 @@ app.get("/logged_sets", (req, res) => {
     }
     res.json(rows);
   });
+});
+
+app.post("/delete_sets", (req, res) => {
+  const { "workout-id": workoutId, date } = req.body;
+
+  if (!workoutId) {
+    return res.status(400).json({ error: "Workout ID is required" });
+  }
+  if (!date) {
+    return res.status(400).json({ error: "Date is required" });
+  }
+
+  const formattedDate = date.split("T")[0];
+
+  db.run(
+    `DELETE FROM logged_sets WHERE workout_id = ? AND date LIKE ?`,
+    [workoutId, `${formattedDate}%`],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      if (this.changes === 0) {
+        return res.status(404).json({ error: "Workout not found" });
+      }
+      res.json({ message: "Workout deleted successfully" });
+    }
+  );
 });

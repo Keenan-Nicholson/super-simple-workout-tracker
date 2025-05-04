@@ -27,8 +27,6 @@ export const CreateWorkout = () => {
       exercises: exercises.map((e) => e.name),
     };
 
-    console.log(data);
-
     const response = await fetch("http://localhost:3000/workouts", {
       method: "POST",
       headers: {
@@ -41,7 +39,6 @@ export const CreateWorkout = () => {
       return;
     }
     const result = await response.json();
-    console.log("Workout saved:", result);
   };
 
   return (

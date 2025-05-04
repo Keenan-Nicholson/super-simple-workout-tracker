@@ -39,7 +39,9 @@ export const Workout = () => {
   const { id } = useParams();
   const [workout, setWorkout] = useState<any>(null);
 
-  const { control, handleSubmit, register, setValue } = useForm<WorkoutForm>({
+  const { control, handleSubmit, register, setValue, getValues } =
+    useForm<WorkoutForm>();
+  ({
     defaultValues: {
       selectedDate: new Date(),
       exercises: [],
@@ -77,7 +79,6 @@ export const Workout = () => {
             name: exercise.name,
             sets: [{ reps: "", weight: "", rest: "" }],
           }));
-          console.log("Default exercises:", defaultExercises);
 
           setValue("exercises", defaultExercises);
         }
@@ -100,7 +101,6 @@ export const Workout = () => {
         rest: parseInt(set.rest),
       }))
     );
-    console.log("Submitted data:", result);
 
     const postWorkout = async () => {
       try {
@@ -116,16 +116,36 @@ export const Workout = () => {
           throw new Error("Failed to save workout");
         }
 
-        console.log("Workout saved successfully");
       } catch (error) {
         console.error("Error saving workout:", error);
       }
     };
     postWorkout();
-    console.log("Submitted data:", result);
   };
 
   if (!workout) return <div>Loading...</div>;
+
+  const onDelete = async () => {
+    try {
+      const selectedDate = getValues("selectedDate");
+      const response = await fetch("http://localhost:3000/delete_sets", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          "workout-id": id,
+          date: selectedDate,
+        }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to delete workout");
+      }
+
+    } catch (error) {
+      console.error("Error deleting workout:", error);
+    }
+  };
 
   return (
     <div className="workout-screen">
@@ -139,7 +159,7 @@ export const Workout = () => {
               <DatePicker
                 selected={field.value}
                 onChange={(date) => field.onChange(date)}
-                dateFormat="yyyy/MM/dd"
+                dateFormat="yyyy-MM-dd"
                 className="date-picker"
               />
             )}
@@ -158,6 +178,13 @@ export const Workout = () => {
 
         <button type="submit" className="home-button create-button">
           Save Workout
+        </button>
+        <button
+          type="button"
+          onClick={onDelete}
+          className="home-button delete-button"
+        >
+          Delete Workout
         </button>
       </form>
     </div>

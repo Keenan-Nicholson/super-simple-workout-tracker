@@ -20,7 +20,6 @@ export const LogWorkout = () => {
         }
         const data = await response.json();
         setWorkouts(data);
-        console.log("Fetched workouts:", data);
       } catch (error) {
         console.error("Error fetching workouts:", error);
       }

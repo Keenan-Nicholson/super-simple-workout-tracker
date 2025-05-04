@@ -88,11 +88,14 @@
 }
 
 .create-button {
-  background-color: #3b82f6; /* blue */
+  background-color: #10b981;
 }
-
+.delete-button {
+  margin-top: -1rem;
+  background-color: #ef4444;
+}
 .log-button {
-  background-color: #10b981; /* green */
+  background-color: #3b82f6; /* green */
 }
 
 .add-set-button {
