@@ -38,15 +38,13 @@ interface WorkoutForm {
 export const Workout = () => {
   const { id } = useParams();
   const [workout, setWorkout] = useState<any>(null);
-
   const { control, handleSubmit, register, setValue, getValues } =
-    useForm<WorkoutForm>();
-  ({
-    defaultValues: {
-      selectedDate: new Date(),
-      exercises: [],
-    },
-  });
+    useForm<WorkoutForm>({
+      defaultValues: {
+        selectedDate: new Date(), // Sets today's date as default
+        exercises: [],
+      },
+    });
 
   useEffect(() => {
     const fetchWorkouts = async () => {
@@ -91,6 +89,7 @@ export const Workout = () => {
   }, [id, setValue]);
 
   const onSubmit = (data: WorkoutForm) => {
+    console.log("Form data:", data);
     const result = data.exercises.flatMap((exercise) =>
       exercise.sets.map((set) => ({
         "workout-id": id,
@@ -101,7 +100,7 @@ export const Workout = () => {
         rest: parseInt(set.rest),
       }))
     );
-
+    console.log(result);
     const postWorkout = async () => {
       try {
         const response = await fetch("http://localhost:3000/logged_sets", {
@@ -111,7 +110,7 @@ export const Workout = () => {
           },
           body: JSON.stringify(result),
         });
-      
+
         if (!response.ok) {
           throw new Error("Failed to save workout");
         }
