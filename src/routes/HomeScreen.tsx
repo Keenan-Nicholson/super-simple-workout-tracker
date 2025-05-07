@@ -21,7 +21,7 @@ export const HomeScreen = () => {
           Log Workout
         </button>
         <button
-          className="home-button log-button"
+          className="home-button history-button"
           onClick={() => navigate("/WorkoutHistory/")}
         >
           History

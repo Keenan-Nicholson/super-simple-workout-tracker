@@ -126,7 +126,33 @@ app.post("/logged_sets", (req, res) => {
 });
 
 app.get("/logged_sets", (req, res) => {
-  db.all(`SELECT * FROM logged_sets`, [], (err, rows) => {
+  const { startDate, endDate, name } = req.query;
+
+  let query = "SELECT * FROM logged_sets";
+  const conditions = [];
+  const params = [];
+
+  if (startDate && endDate) {
+    conditions.push("date BETWEEN ? AND ?");
+    params.push(startDate, endDate);
+  } else if (startDate) {
+    conditions.push("date >= ?");
+    params.push(startDate);
+  } else if (endDate) {
+    conditions.push("date <= ?");
+    params.push(endDate);
+  }
+
+  if (name) {
+    conditions.push("name = ?");
+    params.push(name);
+  }
+
+  if (conditions.length > 0) {
+    query += " WHERE " + conditions.join(" AND ");
+  }
+
+  db.all(query, params, (err, rows) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }

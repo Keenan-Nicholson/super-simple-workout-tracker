@@ -20,28 +20,26 @@ interface RawWorkout {
 interface Workout {
   id: number;
   name: string;
-  exercises: Exercise[];
+  exercises: string[]; // now an array of names like ["Curl", "Row"]
 }
 
 interface Exercise {
   name: string;
+  sets: Set[];
 }
 
 interface WorkoutForm {
   selectedDate: Date;
-  exercises: {
-    name: String;
-    sets: Set[];
-  }[];
+  exercises: Exercise[];
 }
 
 export const Workout = () => {
   const { id } = useParams();
-  const [workout, setWorkout] = useState<any>(null);
+  const [workout, setWorkout] = useState<Workout | null>(null);
   const { control, handleSubmit, register, setValue, getValues } =
     useForm<WorkoutForm>({
       defaultValues: {
-        selectedDate: new Date(), // Sets today's date as default
+        selectedDate: new Date(),
         exercises: [],
       },
     });
@@ -55,13 +53,10 @@ export const Workout = () => {
         }
         const data: RawWorkout[] = await response.json();
 
-        // Find the correct workout AFTER fetching
-        const selectedWorkout = data.find(
-          (w: RawWorkout) => w.id === parseInt(id!)
-        );
+        const selectedWorkout = data.find((w) => w.id === parseInt(id!));
 
         if (selectedWorkout) {
-          const exercisesArray: Exercise[] = JSON.parse(
+          const exercisesArray: string[] = JSON.parse(
             selectedWorkout.exercises
           );
 
@@ -73,8 +68,9 @@ export const Workout = () => {
 
           setWorkout(workout);
 
-          const defaultExercises = exercisesArray.map((exercise) => ({
-            name: exercise.name,
+          // Create default exercise objects for the form
+          const defaultExercises: Exercise[] = exercisesArray.map((name) => ({
+            name,
             sets: [{ reps: "", weight: "", rest: "" }],
           }));
 
@@ -89,18 +85,17 @@ export const Workout = () => {
   }, [id, setValue]);
 
   const onSubmit = (data: WorkoutForm) => {
-    console.log("Form data:", data);
     const result = data.exercises.flatMap((exercise) =>
       exercise.sets.map((set) => ({
         "workout-id": id,
-        date: data.selectedDate,
+        date: data.selectedDate.toISOString().split("T")[0],
         name: exercise.name,
         reps: parseInt(set.reps),
         weight: parseInt(set.weight),
         rest: parseInt(set.rest),
       }))
     );
-    console.log(result);
+    console.log("Submitting:", result);
     const postWorkout = async () => {
       try {
         const response = await fetch("http://localhost:3000/logged_sets", {
@@ -118,10 +113,9 @@ export const Workout = () => {
         console.error("Error saving workout:", error);
       }
     };
+
     postWorkout();
   };
-
-  if (!workout) return <div>Loading...</div>;
 
   const onDelete = async () => {
     try {
@@ -144,6 +138,8 @@ export const Workout = () => {
     }
   };
 
+  if (!workout) return <div>Loading...</div>;
+
   return (
     <div className="workout-screen">
       <h1 className="title">{workout.name}</h1>
@@ -163,11 +159,12 @@ export const Workout = () => {
           />
         </div>
 
-        {workout.exercises.map((exercise: string, index: number) => (
+        {/* Rendering exercises from form state, not raw workout */}
+        {getValues("exercises").map((exercise, index) => (
           <ExerciseFieldArray
-            exerciseIndex={index}
             key={index}
-            exerciseName={exercise}
+            exerciseIndex={index}
+            exerciseName={exercise.name}
             control={control}
             register={register}
           />

@@ -22,7 +22,7 @@ export const ExerciseFieldArray = ({
     <div className="exercise-block">
       <h3 className="exercise-button log-button">{exerciseName}</h3>
       <input
-        type="text"
+        type="hidden"
         {...register(`exercises.${exerciseIndex}.name`)}
         value={exerciseName}
       />

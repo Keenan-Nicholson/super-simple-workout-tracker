@@ -1,12 +1,20 @@
+import { useNavigate } from "react-router-dom";
+import "../App.css";
 import { useEffect, useState } from "react";
 
+type WorkoutPlan = {
+  id: number;
+  name: string;
+};
+
 export const WorkoutHistory = () => {
-  const [workouts, setWorkouts] = useState<any[]>([]);
+  const navigate = useNavigate();
+  const [workouts, setWorkouts] = useState<WorkoutPlan[]>([]);
 
   useEffect(() => {
     const fetchWorkouts = async () => {
       try {
-        const response = await fetch("http://localhost:3000/logged_sets");
+        const response = await fetch("http://localhost:3000/workouts");
         if (!response.ok) {
           throw new Error("Failed to fetch workouts");
         }
@@ -24,7 +32,11 @@ export const WorkoutHistory = () => {
     <div className="home-screen">
       <div className="button-container">
         {workouts.map((workout) => (
-          <button key={workout.id} className="home-button log-button">
+          <button
+            key={workout.id}
+            className="home-button log-button"
+            onClick={() => navigate(`/WorkoutHistory/${workout.id}`)}
+          >
             {workout.name}
           </button>
         ))}
