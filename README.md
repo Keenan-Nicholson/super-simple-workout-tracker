@@ -7,7 +7,7 @@ A **minimalist**, **mobile-first** workout tracker designed for simplicity. Log 
 ## Features
 
 **Create Workouts**  
- Name your workout and add multiple exercises. 📝
+ Create a workout plan with multiple exercises. 📝
 
 **Log Workouts**  
  Record the details for each exercise, including:
@@ -15,8 +15,29 @@ A **minimalist**, **mobile-first** workout tracker designed for simplicity. Log 
 - Reps 🔢
 - Weights 🏋️
 - Rest period ⏱️
-- Any additional notes 💬
 
-**Edit & Track Progress**  
- Edit your exercises during the workout to keep everything up to date. 🔄  
- Track your progress as you go along!
+**View, Edit and Export Your Workout History**
+
+- Quickly browse your past sessions 📅
+- Edit workout entries in case of mistakes ✏️
+- Export data to CSV 📤
+
+## Self-Hosting with Docker Compose
+
+You can easily run **Super Simple Workout Tracker** on your own server using Docker Compose.
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/yourusername/super-simple-workout-tracker.git
+cd super-simple-workout-tracker
+```
+
+### 2. Set Environment Variables
+
+`EXPRESS_PORT` for the backend
+`APP_PORT` for the frontend
+
+### 3. Start the Docker Container
+
+`docker-compose up --build -d`
