@@ -117,27 +117,6 @@ export const Workout = () => {
     postWorkout();
   };
 
-  const onDelete = async () => {
-    try {
-      const selectedDate = getValues("selectedDate");
-      const response = await fetch("http://localhost:3000/delete_sets", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          "workout-id": id,
-          date: selectedDate,
-        }),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to delete workout");
-      }
-    } catch (error) {
-      console.error("Error deleting workout:", error);
-    }
-  };
-
   if (!workout) return <div>Loading...</div>;
 
   return (
@@ -172,13 +151,6 @@ export const Workout = () => {
 
         <button type="submit" className="home-button create-button">
           Save Workout
-        </button>
-        <button
-          type="button"
-          onClick={onDelete}
-          className="home-button delete-button"
-        >
-          Delete Workout
         </button>
       </form>
     </div>

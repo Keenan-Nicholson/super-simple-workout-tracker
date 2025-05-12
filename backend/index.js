@@ -8,10 +8,6 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
-
 app.listen(port, () => {
   console.log(`Listening on ${port}`);
 });
@@ -28,6 +24,10 @@ const corsOptions = {
 
 app.use(express.json());
 app.use(cors(corsOptions));
+
+app.get("/", (req, res) => {
+  res.send("Hello World!");
+});
 
 const db = new sqlite3.Database("database.db", (err) => {
   if (err) {
@@ -103,7 +103,6 @@ app.post("/logged_sets", (req, res) => {
   for (const entry of workoutEntries) {
     const { ["workout-id"]: workoutId, date, name, reps, weight, rest } = entry;
 
-    console.log(name);
     if (
       !workoutId ||
       !date ||
@@ -118,7 +117,6 @@ app.post("/logged_sets", (req, res) => {
 
     stmt.run(workoutId, date, name, reps, weight, rest);
   }
-  console.log("Workout sets logged successfully");
   stmt.finalize((err) => {
     if (err) return res.status(500).json({ error: err.message });
     res.status(201).json({ message: "Workout sets logged successfully" });
@@ -160,29 +158,20 @@ app.get("/logged_sets", (req, res) => {
   });
 });
 
-app.post("/delete_sets", (req, res) => {
-  const { "workout-id": workoutId, date } = req.body;
+app.delete("/delete_sets", (req, res) => {
+  const { "workout-id": workoutId } = req.body;
 
   if (!workoutId) {
-    return res.status(400).json({ error: "Workout ID is required" });
-  }
-  if (!date) {
-    return res.status(400).json({ error: "Date is required" });
+    return res.status(400).json({ error: "Exercise ID is required" });
   }
 
-  const formattedDate = date.split("T")[0];
-
-  db.run(
-    `DELETE FROM logged_sets WHERE workout_id = ? AND date LIKE ?`,
-    [workoutId, `${formattedDate}%`],
-    function (err) {
-      if (err) {
-        return res.status(500).json({ error: err.message });
-      }
-      if (this.changes === 0) {
-        return res.status(404).json({ error: "Workout not found" });
-      }
-      res.json({ message: "Workout deleted successfully" });
+  db.run(`DELETE FROM logged_sets WHERE id = ?`, [workoutId], function (err) {
+    if (err) {
+      return res.status(500).json({ error: err.message });
     }
-  );
+    if (this.changes === 0) {
+      return res.status(404).json({ error: "Exercise not found" });
+    }
+    res.json({ message: "Exercise deleted successfully" });
+  });
 });
