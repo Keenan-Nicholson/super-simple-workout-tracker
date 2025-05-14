@@ -175,3 +175,25 @@ app.delete("/delete_sets", (req, res) => {
     res.json({ message: "Exercise deleted successfully" });
   });
 });
+
+app.put("/edit_sets", (req, res) => {
+  const { id, reps, weight, rest } = req.body;
+
+  if (!id || reps == null || weight == null || rest == null) {
+    return res.status(400).json({ error: "ID, reps, weight and rest are required" });
+  }
+
+  db.run(
+    `UPDATE logged_sets SET reps = ?, weight = ?, rest = ? WHERE id = ?`,
+    [reps, weight, rest, id],
+    function (err) {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+      if (this.changes === 0) {
+        return res.status(404).json({ error: "Exercise not found" });
+      }
+      res.json({ message: "Exercise updated successfully" });
+    }
+  );
+});

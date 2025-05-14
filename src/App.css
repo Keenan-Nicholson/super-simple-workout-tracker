@@ -92,9 +92,30 @@
 }
 .delete-button {
   background-color: #ef4444;
-  width: 75%;
-  font-size: 1rem; /* Smaller text */
-  padding: 8px 8px; /* Smaller padding */
+  width: 25%;
+  font-size: 0.8rem;
+  padding: 8px 8px;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
+
+.edit-button {
+  background-color: #3b82f6;
+  width: 25%;
+  font-size: 0.8rem;
+  padding: 8px 8px;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+}
+.save-button {
+  background-color: #10b981;
+  width: 25%;
+  font-size: 0.8rem;
+  padding: 8px 8px;
   border: none;
   border-radius: 8px;
   color: white;
@@ -102,10 +123,10 @@
 }
 
 .log-button {
-  background-color: #3b82f6; /* green */
+  background-color: #3b82f6;
 }
 .history-button {
-  background-color: #ffd942; /* green */
+  background-color: #ffd942;
 }
 
 .add-set-button {
@@ -308,12 +329,7 @@
   padding: 15px;
   border-radius: 8px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease;
   border: 1px solid #ccc; /* Light gray border */
-}
-
-.workout-card:hover {
-  transform: translateY(-5px);
 }
 
 .workout-card h2 {
@@ -330,23 +346,12 @@
   font-weight: bold;
 }
 
-/* GRID FOR HELPING ALIGN ITEMS */
-/* body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
-  background-size: 20px 20px; /* adjust grid size 
-  z-index: 9999;
-  pointer-events: none;
-} 
-*/
+.workout-card input {
+  margin-left: 10px;
+  max-width: 3rem;
+  border-radius: 5px;
+}
 
-/* The overlay to cover the entire screen */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -360,7 +365,6 @@
   z-index: 9999;
 }
 
-/* The modal box */
 .modal {
   background-color: white;
   padding: 20px;
@@ -370,7 +374,6 @@
   text-align: center;
 }
 
-/* Modal buttons */
 .modal-buttons {
   display: flex;
   justify-content: space-between;

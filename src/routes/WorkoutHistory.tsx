@@ -18,6 +18,14 @@ export const WorkoutHistory = () => {
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [exerciseName, setExerciseName] = useState<string>("");
   const [uniqueNames, setUniqueNames] = useState<string[]>([]);
+  const [modalAction, setModalAction] = useState<"edit" | "delete" | null>(
+    null
+  );
+
+  const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
+  const [editReps, setEditReps] = useState<number>(0);
+  const [editWeight, setEditWeight] = useState<number>(0);
+  const [editRest, setEditRest] = useState<number>(0);
 
   const [showModal, setShowModal] = useState(false);
   const [selectedWorkoutId, setSelectedWorkoutId] = useState<number | null>(
@@ -64,6 +72,7 @@ export const WorkoutHistory = () => {
 
   const onDelete = (id: number) => {
     setSelectedWorkoutId(id);
+    setModalAction("delete");
     setShowModal(true);
   };
 
@@ -91,8 +100,60 @@ export const WorkoutHistory = () => {
     }
   };
 
-  const cancelDelete = () => {
-    setShowModal(false);
+  const onEdit = (workout: Workout) => {
+    setEditingWorkout(workout);
+    setEditReps(workout.reps);
+    setEditWeight(workout.weight);
+    setEditRest(workout.rest);
+  };
+
+  const onEditConfirm = () => {
+    setModalAction("edit");
+    setShowModal(true);
+  };
+
+  const confirmEdit = async () => {
+    if (!editingWorkout) return;
+
+    try {
+      const response = await fetch("http://localhost:3000/edit_sets", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: editingWorkout.id,
+          reps: editReps,
+          weight: editWeight,
+          rest: editRest,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update workout");
+      }
+
+      const updatedWorkout = {
+        ...editingWorkout,
+        reps: editReps,
+        weight: editWeight,
+        rest: editRest,
+      };
+
+      setWorkouts((prev) =>
+        prev.map((w) => (w.id === editingWorkout.id ? updatedWorkout : w))
+      );
+
+      setEditingWorkout(null);
+      setShowModal(false); // 👈 close modal
+      setModalAction(null); // 👈 clear modal action
+    } catch (error) {
+      console.error("Error updating workout:", error);
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingWorkout(null);
   };
 
   return (
@@ -148,36 +209,95 @@ export const WorkoutHistory = () => {
           )
           .map((workout) => (
             <div key={workout.id} className="workout-card">
-              <h2>{workout.name}</h2>
-              <p>
-                <strong>Weight:</strong> {workout.weight} kg
-              </p>
-              <p>
-                <strong>Reps:</strong> {workout.reps}
-              </p>
-              <p>
-                <strong>Rest:</strong> {workout.rest}
-              </p>
-              <p>
-                <strong>Date:</strong>{" "}
-                {new Date(workout.date).toLocaleDateString()}
-              </p>
-              <button
-                type="button"
-                onClick={() => onDelete(workout.id)}
-                className="home-button delete-button"
-              >
-                Delete Exercise
-              </button>
+              {editingWorkout?.id === workout.id ? (
+                <>
+                  <h2>{workout.name}</h2>
+                  <p>
+                    <strong>Weight:</strong>
+                    <input
+                      type="number"
+                      value={editWeight}
+                      onChange={(e) => setEditWeight(Number(e.target.value))}
+                    />
+                  </p>
+                  <p>
+                    <strong>Reps:</strong>
+                    <input
+                      type="number"
+                      value={editReps}
+                      onChange={(e) => setEditReps(Number(e.target.value))}
+                    />
+                  </p>
+                  <p>
+                    <strong>Rest:</strong>
+                    <input
+                      type="number"
+                      value={editRest}
+                      onChange={(e) => setEditRest(Number(e.target.value))}
+                    />
+                  </p>
+                  <button
+                    onClick={onEditConfirm}
+                    className="home-button save-button"
+                  >
+                    Save
+                  </button>
+
+                  <button
+                    onClick={cancelEdit}
+                    className="home-button delete-button"
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <>
+                  <h2>{workout.name}</h2>
+                  <p>
+                    <strong>Weight:</strong> {workout.weight} kg
+                  </p>
+                  <p>
+                    <strong>Reps:</strong> {workout.reps}
+                  </p>
+                  <p>
+                    <strong>Rest:</strong> {workout.rest}
+                  </p>
+                  <p>
+                    <strong>Date:</strong>{" "}
+                    {new Date(workout.date).toLocaleDateString()}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => onEdit(workout)}
+                    className="home-button edit-button"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onDelete(workout.id)}
+                    className="home-button delete-button"
+                  >
+                    Delete
+                  </button>
+                </>
+              )}
             </div>
           ))}
       </div>
 
       {showModal && (
         <ConfirmationModal
-          message="Are you sure you want to delete this exercise?"
-          onConfirm={confirmDelete}
-          onCancel={cancelDelete}
+          message={
+            modalAction === "delete"
+              ? "Are you sure you want to delete this exercise?"
+              : "Are you sure you want to save these changes?"
+          }
+          onConfirm={modalAction === "delete" ? confirmDelete : confirmEdit}
+          onCancel={() => {
+            setShowModal(false);
+            setModalAction(null);
+          }}
         />
       )}
     </div>
