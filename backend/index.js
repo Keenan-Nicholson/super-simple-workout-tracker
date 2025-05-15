@@ -36,7 +36,6 @@ const db = new sqlite3.Database("database.db", (err) => {
   console.log("Connected to the database.");
 });
 
-// create a table "workouts" if it doesn't exist
 db.run(
   `CREATE TABLE IF NOT EXISTS workouts (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -122,13 +121,17 @@ app.post("/logged_sets", (req, res) => {
     res.status(201).json({ message: "Workout sets logged successfully" });
   });
 });
-
 app.get("/logged_sets", (req, res) => {
-  const { startDate, endDate, name } = req.query;
+  const { startDate, endDate } = req.query;
+  let names = req.query.name;
 
   let query = "SELECT * FROM logged_sets";
   const conditions = [];
   const params = [];
+
+  if (names && !Array.isArray(names)) {
+    names = [names];
+  }
 
   if (startDate && endDate) {
     conditions.push("date BETWEEN ? AND ?");
@@ -141,9 +144,10 @@ app.get("/logged_sets", (req, res) => {
     params.push(endDate);
   }
 
-  if (name) {
-    conditions.push("name = ?");
-    params.push(name);
+  if (names && names.length > 0) {
+    const placeholders = names.map(() => "?").join(", ");
+    conditions.push(`name IN (${placeholders})`);
+    params.push(...names);
   }
 
   if (conditions.length > 0) {
@@ -180,7 +184,9 @@ app.put("/edit_sets", (req, res) => {
   const { id, reps, weight, rest } = req.body;
 
   if (!id || reps == null || weight == null || rest == null) {
-    return res.status(400).json({ error: "ID, reps, weight and rest are required" });
+    return res
+      .status(400)
+      .json({ error: "ID, reps, weight and rest are required" });
   }
 
   db.run(

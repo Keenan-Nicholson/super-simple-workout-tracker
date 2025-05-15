@@ -300,6 +300,7 @@
   padding-left: 1rem;
 }
 .date-picker-dropdown select {
+  width: 100%;
   background-color: white;
   border: 1px solid #ccc;
 }
@@ -318,11 +319,22 @@
   margin-bottom: 1rem;
 }
 
+.checkbox-list {
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .workout-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 20px;
   margin-top: 20px;
+  width: 100%; /* NEW: stretch to container */
+  max-width: 1000px; /* OPTIONAL: control max width if desired */
 }
 
 .workout-card {

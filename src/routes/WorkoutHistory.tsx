@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import ConfirmationModal from "../Components/ConfirmationModal"; // Adjust the path
+import ConfirmationModal from "../Components/ConfirmationModal";
 
 interface Workout {
   id: number;
@@ -16,7 +16,7 @@ export const WorkoutHistory = () => {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
-  const [exerciseName, setExerciseName] = useState<string>("");
+  const [exerciseNames, setExerciseNames] = useState<string[]>([]);
   const [uniqueNames, setUniqueNames] = useState<string[]>([]);
   const [modalAction, setModalAction] = useState<"edit" | "delete" | null>(
     null
@@ -54,7 +54,9 @@ export const WorkoutHistory = () => {
           params.append("startDate", startDate.toISOString().split("T")[0]);
         if (endDate)
           params.append("endDate", endDate.toISOString().split("T")[0]);
-        if (exerciseName) params.append("name", exerciseName);
+        if (exerciseNames.length > 0) {
+          exerciseNames.forEach((name) => params.append("name", name));
+        }
 
         const response = await fetch(
           `http://localhost:3000/logged_sets?${params.toString()}`
@@ -68,7 +70,7 @@ export const WorkoutHistory = () => {
     };
 
     fetchWorkouts();
-  }, [startDate, endDate, exerciseName]);
+  }, [startDate, endDate, exerciseNames]);
 
   const onDelete = (id: number) => {
     setSelectedWorkoutId(id);
@@ -145,8 +147,8 @@ export const WorkoutHistory = () => {
       );
 
       setEditingWorkout(null);
-      setShowModal(false); // 👈 close modal
-      setModalAction(null); // 👈 clear modal action
+      setShowModal(false);
+      setModalAction(null);
     } catch (error) {
       console.error("Error updating workout:", error);
     }
@@ -184,20 +186,30 @@ export const WorkoutHistory = () => {
           />
         </div>
         <div className="date-picker-dropdown">
-          <label>Exercise Name</label>
           <br />
-          <select
-            value={exerciseName}
-            onChange={(e) => setExerciseName(e.target.value)}
-            className="date-picker"
-          >
-            <option value="">All</option>
-            {uniqueNames.map((name) => (
-              <option key={name} value={name}>
-                {name}
-              </option>
-            ))}
-          </select>
+          <div className="exercise-filter">
+            <label>Exercise Name</label>
+            <div className="checkbox-list">
+              {uniqueNames.map((name) => (
+                <label key={name} className="checkbox-item">
+                  <input
+                    type="checkbox"
+                    checked={exerciseNames.includes(name)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setExerciseNames((prev) => [...prev, name]);
+                      } else {
+                        setExerciseNames((prev) =>
+                          prev.filter((n) => n !== name)
+                        );
+                      }
+                    }}
+                  />
+                  {name}
+                </label>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 

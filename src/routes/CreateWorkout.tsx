@@ -38,7 +38,6 @@ export const CreateWorkout = () => {
       console.error("Failed to save workout");
       return;
     }
-    const result = await response.json();
   };
 
   return (
